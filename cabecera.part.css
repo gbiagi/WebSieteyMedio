@@ -1,0 +1,118 @@
+.escritorio{
+    z-index: 20;
+    position: fixed;
+    width: 100%;
+    top: 0px;
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    background-color: rgb(22, 22, 22, .8);
+    height: 50px;
+    font-family: "Cinzel";
+    font-size: 18px;
+    border-bottom: 1px solid #e9ca5e;
+}
+
+.logo{
+    max-width: 50px;
+    padding-top: 5px;
+}
+
+nav{
+    margin: 0;
+    align-items: center;
+    display: flex;
+}
+
+span{
+    padding: 13px;
+}
+
+a{
+    color: white;
+    text-decoration: solid;
+    text-decoration-color: black;
+    font-weight: 550;
+    transition-duration: 1s;
+}
+
+a:hover{
+    color: #e9ca5e;
+    transition-duration: 1s;
+}
+
+.escritorio img{
+    width: 100%;
+}
+
+@media only screen and (max-width: 768px) {
+    .escritorio {
+        z-index: -10;
+        opacity: 0;
+        font-size: 0px;
+        background-color: transparent;
+    }
+    .escritorio img {
+        width: 0px;
+        height: 0px;
+    }
+    .movil .botonMenu{
+        opacity: 1;
+        width: 3rem;    
+        height: 3rem;
+        padding-right: 50px;
+        z-index: 20;
+    }
+
+}
+/* Boton de menu */
+.botonMenu {
+    opacity: 0;
+    display: flex;
+    width: 0px;    
+    height: 0px;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background-image: url(./imgs/logo.png);
+    background-size: cover;
+    background-color: black;
+    border-radius: 10px;
+    border: 0;
+    color: white;
+    cursor: pointer;
+}
+
+/* Cuando es pulsado, se quita el translate que lo ocultaba */
+.botonMenu:focus + .principal {
+    transform: translateX(0rem);
+}
+/* Se posiciona y se oculta con translate */
+nav.principal {
+    z-index: 1;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 15rem;
+    background-color: rgb(19, 19, 19, .8);
+    transform: translateX(15rem);
+    transition: 1s all;
+}
+/* Estilos sencillos para decorar los links */
+nav.principal ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+}
+nav.principal a {
+    display: block;
+    color: #D5DED9;
+    padding: 1rem;
+    transition: .5s all;
+}
+nav.principal a:hover {
+    text-decoration: none;
+    background-color: rgb(133, 0, 0);
+}
