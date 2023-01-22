@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+       <meta charset="UTF-8">
+       <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+       <meta http-equiv="Pragma" content="no-cache" />
+       <meta http-equiv="Expires" content="0" />
+       <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+       <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+       <link rel="preconnect" href="https://fonts.gstatic.com">
+       <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i&display=swap" rel="stylesheet">
+       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Sofia Sans">
+       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Bitter">
+       <link href="/documentacion.css" rel="stylesheet">
+       <script src="/shadowPartial.js"></script>
+       <title>Seven and Half</title>
+       <link rel="shortcut icon" href="./imgs/logo.png" type="image/x-icon">
+    </head>
+    <body>
+        <header>
+            <shadow-partial data-html="cabecera.part.html" data-css="cabecera.part.css"></shadow-partial>
+        </header>
+        <div class="autocenter">
+            <div class="seccion1">
+                <h1>Documentación:</h1>
+                <div class="linea"></div>
+                <h3>Librería pyfiglet:</h3>
+                <div class="linea2"></div>
+                <div class="sub-seccion">
+                    <p>Hemos usado una librería para python llamada "pyfiglet" para la
+                        impresión de las cabeceras de cada menu. Por comidad la hemos integrado
+                        en nuestro proyecto como un "python package". Así a la hora de descargarse
+                        el proyecto y abrirlo con pycharm no se deberan de hacer acciones adicionales.
+                    </p>
+                    <img class="figlet" src="./imgs/pyfiglet.png"/>
+                </div>
+                <h3>Librería pymysql:</h3>
+                <div class="linea2"></div>
+                <div class="sub-seccion">
+                    <p>Decidimos utilizar la librería pyMySQL para realizar las conexiones con la base de datos, 
+                        ya que es una de las librerías más populares para ello. La manera en la que utilizamos la 
+                        librería es muy básica, hemos diseñado dos funciones, una para hacer inserts y otra para 
+                        hacer selects. En las dos abrimos la conexión de la misma forma y al terminar la cerramos, 
+                        la ejecución de la query también la hacemos igual, la única diferencia es que cuando hacemos 
+                        un insert después del execute mandamos un comit, y cuando hacemos una select después del execute 
+                        guardamos un fetchall de la query y hacemos un return.
+                    </p>
+                    <img class="figlet" src="./imgs/pymsql.PNG"/>
+                </div>
+                <div class="sub-seccion2">
+                    <img src="./imgs/pyMySQL_select.PNG"/>
+                    <img src="./imgs/pyMySQL_insert.PNG"/>
+                </div>
+                <h3>Cambios en apuestas:</h3>
+                <div class="linea2"></div>
+                <div class="sub-seccion3">
+                    <p>Durante el proyecto nos surgió una duda respecto a lo que nos pedían, nos pareció que el sistema de apuestas, no estaba del todo bien implementado, ya que no nos parecía lógico que un jugador pudiera cambiar su apuesta cuando le llegaba el turno.
+                        Para solventar este problema. Decidimos hacer que todos los jugadores apostasen al inicio de la ronda, y que si estos jugadores eran humanos, se les mostrase un menú en el que decidieran si apostar manual o automáticamente.
+                        Para hacer esto creamos un condicional dentro de la función setPlayersBet():
+                    </p>
+                    <img class="nulo" src="./imgs/playersBet_1.PNG"/>
+                    <img class="nulo" src="./imgs/playersBet_1.2.PNG"/>
+                    <ul>
+                        <li>
+                            En esta función iteramos sobre cada elemento de la lista contextGame[“players”], que es una 
+                            lista en la que guardamos los DNIs de los jugadores que están en la partida, y durante cada iteración comprobaremos, 
+                            entrando en el diccionario players, si el jugador con el que estamos iterando en ese momento tiene True como valor de 
+                            la key[“human”]. Si este fuera el caso desplegaríamos un menú para que pueda elegir si apostar de forma automática o manual, 
+                            si lo quiere hacer de forma automática, tendrá a la derecha de la opción el valor de puntos que apostara, y siempre le aparecerán 
+                            impresos encima del menú, sus puntos y los de la banca, para que lo tenga en cuenta en el momento de hacer la apuesta.
+                        </li>
+                    </ul>
+                    <img class="nulo" src="./imgs/playersBet_2.PNG"/>
+                </div>
+                <h3>Lógica de la banca:</h3>
+                <div class="linea2"></div>
+                <div class="sub-seccion3">
+                    <p>
+                        Cuando empezamos el motor de juego, una de nuestras mayores preocupaciones fue la banca. Para comprender su funcionamiento 
+                        y su lógica hicimos un resumen de las acciones que realizaba en cada ronda, una vez tuvimos todas las acciones las ordenamos 
+                        para que tuviesen sentido, el orden fue el siguiente:
+                    </p>
+                    <ul>
+                        <li>No apuesta.</li>
+                        <li>Es la última en jugar.</li>
+                        <li>Se planta si gana a todo el mundo.</li>
+                        <li>Pide según su perfil de riesgo.</li>
+                        <li>Si al superar su perfil, todos los jugadores de la partida le ganan o pierde todos sus puntos, sigue pidiendo.</li>
+                        <li>Se planta</li>
+                    </ul>
+                    <p>
+                        Una vez la lista estaba en orden y tenía sentido empezamos con el programa, creando primero un bucle infinito para 
+                        que jugase. La banca juega dentro de un “ELSE”, que viene del siguiente “IF” (IF not players[player][“bank”]:) 
+                        que entraría en la zona donde juegan los boots normales, al no entrar en ese condicional pasa al “ELSE” donde juega la banca. 
+                        Lo primero que hacemos en cada vuelta del bucle es llamar a la función playersWinningBank() que hace lo siguiente:
+                    </p>
+                    <ul>
+                        <li>Crea dos variables, una será “points”, que servirá para guardar la cantidad de puntos que perderá la banca al final de la ronda; 
+                            la otra será “count”, que será un contador donde guardaremos la cantidad de jugadores que ganan a la banca.</li>
+                        <li>Después iteraremos sobre cada jugador en la lista de contextGame[“players”].</li>
+                        <li>Por cada jugador comprobaremos que no sea banca (if not players[player][“bank”]:), en caso de que entre en el condicional, 
+                            compararemos los puntos de ronda de la banca con los del jugador.</li>
+                        <li>Si el jugador tiene más puntos que la banca, sumamos la apuesta de este jugador a la variable “points” y sumamos uno a “count”.</li>
+                        <li>Cuando se termina de iterar se hace un return de “points” y “count”.</li>
+                    </ul>
+                    <p>
+                        Guardamos los dos datos que nos llegan de la función en dos variables, con el mismo nombre que las variables de la función, “points” 
+                        en “points” y “count” en “count”, y empezamos con los condicionales, que sirven de “IA” a la banca.
+                        Continuamos siguiendo el orden propuesto, de la siguiente manera:
+                    </p>
+                    <ul>
+                        <li>Lo primero que tenemos que comprobar es si la banca gana a todo el mundo, en caso de que lo haga se plantara tenga los puntos de 
+                            ronda que tenga. Para comprobarlo utilizamos la variable “count”, ya que si “count” es igual a cero significa que no hay nadie que gane a la banca.
+                        </li>
+                        <li>Si no se planta juega como un jugador normal, según su perfil de riesgo. Esto será de la siguiente manera, comprobamos si el nivel de riesgo de 
+                            la banca (en nuestro programa el riesgo se guarda dentro del diccionario players con una key llamada “type”) es menor que el return de la función 
+                            “probToPass()” esta función devuelve el porcentaje de posibilidades que hay de pasar 7.5, contando con, las cartas que quedan por salir y los 
+                            puntos del jugador en caso de que esto sea cierto, la banca pide carta.
+                        </li>
+                        <li>
+                            Si “probToPass()” supera el valor de players[player][“type”] se comprueba lo siguiente: tendremos dos condiciones, y nos valdra con que se 
+                            cumpla una de las dos para entrar en el condicional; la primera será comprobar si la longitud de la lista de jugadores menos uno es igual a 
+                            la variable “count”, esto nos hará saber si todos los jugadores ganan a la banca, y lo haremos de esta de esta manera (count == len(contextGame[“players”]) - 1) 
+                            y la segunda opción será comprobar si la variable “points” es mayor o igual que los puntos de la banca, esto servirá para saber si la banca se va a quedar sin puntos, 
+                            y lo haremos de la siguiente manera (points >= players[player][“points”]). Si se cumple cualquiera de estas dos condiciones la banca pedirá otra carta.
+                        </li>
+                        <li>Si ninguna de las anteriores condiciones se ha cumplido la banca se plantara y pasara turno.</li>
+                    </ul>
+                    <p>
+                        Para terminar si la banca sea pasado de siete y medio al pedir cartas, le cambiaremos los puntos de ronda por menos uno. Esto aparecerá después en el 
+                        pronto de los sets del final de ronda, pero según como montamos el sistema de repartición de puntos, esta ha sido la manera más fácil de que no den 
+                        problemas los players que pasan de siete y medio. Lo dejamos de esta manera, ya que no interfiere ni con el desarrollo de la partida, ni con la base 
+                        de datos, ya que las puntuaciones que superan siete y medio no se utilizan.
+                    </p>
+                    <img class="nulo" src="./imgs/probToPass.PNG"/>
+                    <img class="nulo" src="./imgs/banca_1.PNG"/>
+                    <img class="nulo" src="./imgs/banca_2.PNG"/>
+                </div>
+                <h3>Lógica de boots:</h3>
+                <div class="linea2"></div>
+                <div class="sub-seccion3">
+                    <img class="nulo" src="./imgs/playersBet_2.PNG"/>
+                    <img class="nulo" src="./imgs/boot_bet.PNG"/>
+                    <img class="nulo" src="./imgs/boots_play.PNG"/>
+                    <p>
+                        Desde el primer momento tuvimos muy clara la lógica de los boots, ya que sigue un orden muy simple:
+                    </p>
+                    <ul>
+                        <li>Apuesta según su nivel de riesgo.</li>
+                        <li>Pide carta según su nivel de riesgo.</li>
+                        <li>Pasa turno.</li>
+                    </ul>
+                    <p>
+                        Para las apuestas decimos que se hicieran todas al inicio de la ronda para ello utilizamos la función playersBet(), esta función hace lo siguiente:
+                    </p>
+                    <ul>
+                        <li>Al entrar empieza a iterar sobre cada elemento en la lista de contexGame[“players”], 
+                            lo que significa que en cada iteración tendremos el DNI de un player diferente.</li>
+                        <li>Al empezar una iteración se comprueba si el player sobre el que estamos iterando es boot o humano 
+                            (el motivo explicado en la documentación de “Cambios en apuestas”).</li>
+                        <li>Si el player es un boot se comprobara primero, cuántos puntos tiene, después depende los puntos que tenga se hará lo siguiente:</li>
+                        <ul class="sub-lista">
+                            <li>Si tiene 5 o menos puntos el boot apostara todos los puntos que le queden. 
+                                Esto lo tuvimos que hacer ya que, algunas partidas, se hacían demasiado largas o incluso había veces que los jugadores apostaban 0.</li>
+                            <li>Si tiene más de 5 puntos, apostara según su nivel de riesgo con el siguiente calculo: ((puntos del jugador * nivel de riesgo) // 100).</li>
+                        </ul>
+                        <li>Se guarda la apuesta en el diccionario players y pasa a apostar el siguiente jugador.</li>
+                    </ul>
+                    <p>
+                        Una vez se han realizado las apuestas empezara el turno de cada jugador, para ello iteramos sobre cada elemento de la lista contextGame[“players”], 
+                        así haremos una iteración por cada jugador. Cuando entremos en la iteración se comprobara por cada jugar, si es humano, 
+                        si lo es entrara en un menú especial para humanos, si no lo es llegara a un doble condicional que preguntara: si el jugador es humano o si el 
+                        jugador ha activado “automatic” (una variable diseñada para que un humano juegue como un boot), si se cumplen cualquiera de estas dos opciones 
+                        entrara en la zona de juego de los boots. Dentro de esta zona tendremos otro condicional que servirá para comprobar si el jugar es banca, 
+                        si no lo es entrara en la zona de juego de los boots normales, que funciona de una manera muy simple:
+                    </p>
+                    <ul>
+                        <li>Se activa un bucle, que funcionara mientras se cumpla que, el nivel de riesgo del jugador sea mayor que el “return” de la función probToPass(), 
+                            esta función actúa de la siguiente forma:
+                        </li>
+                        <ul class="sub-lista">
+                            <li>Se le pasan los datos, puntos del jugador y lista de cartas que quedan en el mazo.</li>
+                            <li>Se crea una variable “count”, que nos servirá para contar cuantas cartas nos hacen pasarnos de siete y medio.</li>
+                            <li>Empieza a iterar sobre cada elemento de la lista de cartas que quedan en el mazo.</li>
+                            <li>Por cada iteración comprobamos si esa carta nos haría pasarnos de siete y medio, si lo hace le sumamos uno a la variable “count”.</li>
+                            <li>o	Una vez hemos terminado de iterar sobre el mazo se hace un cálculo, para saber cuál es la probabilidad de pasar siete y medio y se 
+                                devuelve con un “return”. El cálculo es el siguiente: (“count” * 100) / cartas que quedan en el mazo.</li>
+                        </ul>
+                        <li>Mientras se cumpla esa condición el boot pedirá una carta con la función drawCard(), por cada vuelta del bucle, la función drawCard() 
+                            es una función muy sencilla que coge una carta aleatoria del mazo la elimina del mazo y se la asigna al jugador.
+                        </li>
+                        <li>
+                            Una vez se rompa el bucle se comprobara si el boot ha pasado de siete y medio, en tal caso se le cambiaran los puntos de ronda y se le 
+                            asignaran menos un puntos.
+                        </li>
+                        <li>Pasa al siguiente jugador.</li>
+                    </ul>
+                    <img class="nulo" src="./imgs/probToPass.PNG"/>
+                    <img class="nulo" src="./imgs/draw_cards.PNG"/>
+                </div>
+                <h3>Lógica de prioridades:</h3>
+                <div class="linea2"></div>
+                <div class="sub-seccion3">
+                    <p>
+                        Esta es una de las partes que más simples nos ha parecido, junto con la lógica de los boots (esta dos estarían empatadas). Lo primero que 
+                        hicimos fue el sistema de ordenación con la función orderPlayers(), empezamos por esa función porque nos pareció la parte más larga de esta 
+                        lógica, y al final así fue.
+                    </p>
+                    <p>
+                        Esta función es un sistema de ordenación de burbuja que no tiene nada de especial en la iteración, donde estuvo la complicación fue en los 
+                        condicionales que nos permitían hacer los cambios de posiciones.
+                    </p>
+                    <p>
+                        Para poder ver el valor de la carta inicial de un jugador se accede a dos diccionario diccionarios, aun que a uno de ellos se accede para 
+                        coger dos datos diferentes,  estos diccionarios son contextGamen, del cual accedemos a la key “deck” que es un diccionario de cartas y a 
+                        la key “players” que es una lista con los DNIs de los jugadores; el otro diccionario es players, aquí se guarda la información de cada jugador, 
+                        en este caso accederemos para coger el dato que hay en la key “initial_card”. El orden para recuperar la información que queremos de cada 
+                        jugador es el siguiente:
+                    </p>
+                    <ul>
+                        <li>Primero abrimos el diccionario contextGame.</li>
+                        <li>Dentro de este diccionario abrimos la key “deck”, donde está la información de cada carta.</li>
+                        <li>Ahora para obtener la carta que queremos comparar abrimos el diccionario players.</li>
+                        <li>El diccionario players tiene como key de cada jugador su DNI.</li>
+                        <li>Para obtener este dato volvemos a abrir el diccionario contextGame.</li>
+                        <li>Esta vez abrimos la key “players” y cogemos el jugador que queremos comparar.</li>
+                        <li>Una vez dentro del diccionario del jugador buscamos la key “initial_card”, que es donde se guarda el id de la carta que queremos comparar.</li>
+                        <li>Con este dato ya podemos acceder a la información de la carta, el valor que necesitamos está dentro de la key “value”, la abrimos y ya 
+                            podemos hacer las comparaciones.
+                        </li>
+                    </ul>
+                    <p>Todo esto se traduce en la siguiente sentencia:</p>
+                    <p>contextGame[“deck”][players[contextGame[“players”][x]][“initial_card”]][“value”]</p>
+                    <p>*X es el jugador del que queremos la información.</p>
+                    <p>Una vez ya supimos cómo obtener los datos que queríamos, solo nos quedaba hacer las comparaciones para poder ordenar la lista de jugadores 
+                        según la carta inicial. Las comparaciones eran las siguientes: quien tiene la mayor carta y en caso de empate, mirar cuál de las dos cartas 
+                        tiene más prioridad. Prioridad y valor de la carta se encuentran en el mismo diccionario, así que se accede a ellos de la misma manera, 
+                        cambiando solo la key final de la sentencia.
+                    </p>
+                    <p>Con esta función terminada nos pusimos con la función SetPriority(), esta función sigue el siguiente orden:</p>
+                    <ul>
+                        <li>Primero se crea un mazo a partir de las keys del diccionario contextGame[“deck”].</li>
+                        <li>Con este mazo listo iteramos sobre cada elemento la lista contextGame[“players”].</li>
+                        <li>Por cada iteración repartimos una carta al jugador con el que estamos iterando.</li>
+                        <li>Esta carta se asigna en la key “initial_card” del diccionario de cada jugador.</li>
+                        <li>Con las cartas repartidas entramos en la función orderPlayers(), que explicamos en los párrafos anteriores.</li>
+                        <li>Una vez quedan ordenados los players iteramos de nuevo sobre la lista, esta vez iteraremos por el rango de la lista, de esta manera a 
+                            cada jugador le asignaremos, en la key “priority” de su diccionario, la posición que tenga en la lista de contextGame más uno, que 
+                            será su prioridad.
+                        </li>
+                        <li>Ahora ponemos a True el valor de la key “bank” del jugador que esta al final de la lista contextGame[“players”], que 
+                            será el que tenga más prioridad.
+                        </li>
+                        <li>Para terminar guardamos en contextGame[“bank”] el DNI del jugador con más prioridad.</li>
+                    </ul>
+                    <img class="nulo" src="./imgs/priority_1.PNG"/>
+                    <img class="nulo" src="./imgs/priority_2.PNG"/>
+                </div>
+                <h3>Lógica de inserts:</h3>
+                <div class="linea2"></div>
+                <div class="sub-seccion3">
+                    <p>Es la última lógica que implementamos, puesto que primero decidimos tener un motor de juego funcional, antes de empezar 
+                        a plantear como subiríamos los datos de las partidas. 
+                        Lo primero que hicimos fue, decidir cómo y cuándo haríamos el insert de los datos y puesto que la mayoría de las tablas requerían de que 
+                        estuviese hecha la tabla cardgame, y dicha tabla es una de las tablas que se suben al final de la partida, decidimos ir guardando los 
+                        datos mientras se fuera realizando la partida y subir todo al final, aparte también lo hicimos de esta manera para evitar que se quedasen 
+                        datos inconexos en la base de datos al cerrar una partida que no se había terminado. Para ver como debíamos guardar los datos, revisamos 
+                        todos los campos que nos pedían de cada tabla, y después lo ordenamos de la siguiente manera:
+                    </p>
+                    <p class="sin-margen">Tabla card game:</p>
+                    <ul>
+                        <li>Datos que guardamos al inicio de la partida:</li>
+                        <ul class="sub-lista">
+                            <li>Número de jugadores</li>
+                            <li>Hora de inicio</li>
+                            <li>ID del mazo</li>
+                            <li>EL ID de la partida se genera en la Base de Datos de forma autoincremental.</li>
+                        </ul>
+                        <li>Datos que se guardan al final de la partida:</li>
+                        <ul class="sub-lista">
+                            <li>Total de rondas.</li>
+                            <li>Hora de finalización.</li>
+                        </ul>
+                    </ul>
+                    <p class="sin-margen">Tabla players_game:</p>
+                    <ul>
+                        <li>Datos que se guardan al inicio de la partida:</li>
+                        <ul class="sub-lista">
+                            <li>ID de la partida.</li>
+                            <li>El DNI.</li>
+                            <li>La carta inicial.</li>
+                            <li>Puntos iniciales.</li>
+                        </ul>
+                        <li>Datos que se guardan al final de la partida:</li>
+                        <ul class="sub-lista">
+                            <li>Puntos finales.</li>
+                        </ul>
+                    </ul>
+                    <p class="sin-margen">Tabla players_game_round:</p>
+                    <ul>
+                        <li>Datos que se guardan al inicio de la ronda:</li>
+                        <ul class="sub-lista">
+                            <li>El ID de la partida.</li>
+                            <li>La ronda actual.</li>
+                            <li>El ID del jugador.</li>
+                            <li>Si el jugador es banca.</li>
+                            <li>La apuesta que realiza.</li>
+                            <li>Puntos iniciales.</li>
+                        </ul>
+                        <li>Datos que se guardan al final de la ronda:</li>
+                        <ul class="sub-lista">
+                            <li>Valor de puntos en cartas.</li>
+                            <li>Puntos del jugador al final de la ronda.</li>
+                        </ul>
+                    </ul>
+                    <p>Una vez teníamos esto concretado empezamos a desarrollar tres funciones, una para cada tabla: addDataToCardGame(moment) para 
+                        los datos de cardgame, addDataToPlayerGame(moment) para los datos de player_game y addDataToPlayerGameRound(moment) para 
+                        los datos de player_game_round. Para cada una de estas funciones se crea un diccionario con el nombre de la tabla en la que 
+                        se van a subir sus datos.  Las funciones tienen todas el mismo esqueleto, lo único que cambia son los datos que guarda y los 
+                        datos que sube, el funcionamiento es el siguiente:
+                    </p>
+                    <p>En todas la funciones lo primero que se hace al entrar a la función es generar el ID que tendrá la siguiente partida, para 
+                            ir creando y moviéndonos por los diccionarios, en el momento de subir datos no subiremos ID de partida en la tabla de cardgame 
+                            pero si que lo haremos en las otras dos. Aparte una de las pocas diferencias que hay entre las tres funciones es que en la 
+                            función donde se guardan dato de cardgame, al entrar en la función se guardara la hora ya que es un dato necesario en esta tabla.
+                    </p>
+                    <p class="sin-margen">Después según que le hayamos puesto en el argumento moment hará una de estas tres acciones:</p>
+                    <ul>
+                        <li>“beginning”:</li>
+                        <ul class="sub-lista">
+                            <li>Al poner este argumento lo que hará la función será guardar los datos que se necesitan al inicio.</li>
+                        </ul>
+                        <li>“final”:</li>
+                        <ul class="sub-lista">
+                            <li>Al mandar este argumento se guardaran los datos que se necesitan al final.</li>
+                        </ul>
+                        <li>“insert”:</li>
+                        <ul class="sub-lista">
+                            <li>Al poner este argumento se enviaran los datos que tengamos guardados a la base de datos.</li>
+                        </ul>
+                    </ul>
+                    <img class="nulo" src="./imgs/cardgame_1.PNG"/>
+                    <img class="nulo" src="./imgs/cardgame_2.PNG"/>
+                    <img class="nulo" src="./imgs/cardgame_3.PNG"/>
+                    <img class="nulo" src="./imgs/cardgame_4.PNG"/>
+                    <img class="nulo" src="./imgs/cardgame_5.PNG"/>
+                    <img class="nulo" src="./imgs/cardgame_6.PNG"/>
+                    <img class="nulo" src="./imgs/cardgame_7.PNG"/>
+                    <img class="peque" src="./imgs/cardgame_8.PNG"/>
+                </div>
+                <h3>Error en borrado de players:</h3>
+                <div class="linea2"></div>
+                <div class="sub-seccion3">
+                    <p>
+                        pymysql.err.IntegrityError: (1451, 'Cannot delete or update a parent row: a foreign key constraint fails 
+                        (siete_y_medio.player_game, CONSTRAINT player_game_player FOREIGN KEY (player_id) REFERENCES player (player_id))'
+                    </p>
+                    <img class="nulo" src="./imgs/arreglo_eliminacion_players.PNG"/>
+                    <p>
+                        Durante el proyecto nos surgió un problema que no habíamos planteado en el momento de borrar usuarios, como los players eran FK de dos tablas 
+                        en la base de datos nos daba error al intentar borrar a un jugador que ya hubiera jugado una partida. Para solucionarlo utilizamos la opción de 
+                        on delete cascade para las FK que estábamos guardando de los jugadores, de esta manera al borrar un jugador se borraban también sus 
+                        entradas en estas tablas.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <shadow-partial data-html="footer.part.html" data-css="footer.part.css"></shadow-partial>
+        </footer>
+    </body>
